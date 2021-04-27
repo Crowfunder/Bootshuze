@@ -1,32 +1,24 @@
 import re
 import os.path
 import sys
+import PySimpleGUI as sg
 
-def main():
-  if not os.path.isfile('template'):
-    print("Template file is missing, make sure it's in the same directory "
-          "as this script and start again.")  
+# Allows printing directly into window console.
+def console_print(text, window):
+      print(text)
+      window.Refresh()
+
+def main(file, file_name, window, output_name):
   
-  if len(sys.argv) < 2:
-    file_name = input(f'Enter the name of model to process (without .obj): ')
-  else:
-    file_name = sys.argv[1]
-  
-  if os.path.isfile(f'{file_name}.xml'):
-    output_name = input(f'File {file_name}.xml already exists, choose a name '
-                        '(or press Enter if you want to overwrite): ')
-  else:
-    output_name = None
-  
-  with open(f'{file_name}.obj', 'r') as f:
+  with open(file, 'r') as f:
     args     = dict()
     faces    = list()
     indices  = list()
     vertices = list()
     lines = f.readlines()
     
-    print('Reading input model file.')
-    print('Calculating indices...')
+    console_print('Reading input model file.', window)
+    console_print('Calculating indices...', window)
     
     for line in lines:
       # Store faces that determine the numbers for indices
@@ -61,7 +53,7 @@ def main():
       raise Exception('Input model lacks UV mapping. '
                       'Model cannot be correctly created.')
     
-    print('Calculating vertices...')
+    console_print('Calculating vertices...', window)
     
     # Generate vertices list based on indices from input file
     for face in faces:
@@ -80,18 +72,17 @@ def main():
     del lines
     del v, vn, vt
     
-  with open(f"{output_name or file_name}.xml", 'w+') as o, \
+  with open(f"{file_name}.xml", 'w+') as o, \
        open('template', 'r') as i:
-    print('Writing output.')
+    console_print('Writing output.', window)
     
-    args['min_extent']  = str(min_extent)[1:-1]
+    args['min_extent'] = str(min_extent)[1:-1]
     del min_extent
-    args['max_extent']  = str(max_extent)[1:-1]
+    args['max_extent'] = str(max_extent)[1:-1]
     del max_extent
-    args['indices']     = str(indices)[1:-1]
-    args['indices_end'] = str(max(indices))
+    args['indices']    = str(indices)[1:-1]
     del indices
-    args['vertices']    = ', '.join(vertices)
+    args['vertices']   = ', '.join(vertices)
     del vertices
     
     regex = re.compile(r'(?:{{ )([a-zA-Z_]*)(?: }})')
@@ -100,17 +91,67 @@ def main():
         line = regex.sub(args[regex.search(line).group(1)], line)
       o.write(line)
       
-    print(f'Finished writing to {o.name}.')
+    console_print(f'Finished writing to {o.name}.', window)
+    console_print(f'Done!', window)
+    window.FindElement('_done_').Update('Done!')
+
+  
+def menu():
+      column1 = [
+                  [sg.Text('Welcome to Bootshuze!', size=(20,1), 
+                    justification='c', font=('Helvetica', 16))],
+                  [sg.Text('Select a .obj model to process:')], 
+                  [sg.InputText(size=(29,1)), sg.FileBrowse()],
+                  [sg.Button('Submit'), 
+                    sg.Text('', text_color='lawn green', key='_done_',
+                            size=(5,1))]
+                ]
+      column2 = [
+                  [sg.Output(size=(36,6), key='_output_')],
+                  [sg.Button('Clear Console')]
+                ]
+      layout = [[sg.Frame(layout = column1, title='')], 
+                [sg.Frame(layout = column2, title='Console')]]
+      window = sg.Window('Bootshuze', layout, 
+                         element_justification='c').Finalize()
+      
+      while True:
+        try:
+          
+            event, values = window.Read()
+            if event is None:
+              break
+            
+            elif event == 'Submit':
+              file = values[0]
+              window.FindElement('_done_').Update('')
+              console_print(fr'''Processing "{file}"...''', window)
+              
+              file_name = os.path.basename(file).replace('.obj', '')
+              if os.path.isfile(f'{file_name}.xml'):
+                output_name = console_print(f'File {file_name}.xml '
+                                             'already exists! Halting!', window)
+              else:
+                output_name = None
+                main(file, file_name, window, output_name)
+                
+              console_print('---------------------------------'
+                            '------------------------------', window)
+              
+            elif event == 'Clear Console':
+              window.FindElement('_output_').Update('')
+              
+        except Exception as e:
+          print(e)
+          console_print('---------------------------------'
+                        '------------------------------', window)
   
 if __name__ == '__main__':
-  while True:
-    try:
-      main()
-      break
-    except FileNotFoundError:
-      print('File cannot be found in this folder, '
-            'check spelling and try again.')
-    except Exception as e:
-      print(e)
-    finally:
-      print()
+      
+    if not os.path.isfile('template'):
+        sg.PopupError("Template file is missing, make sure" 
+                      "it's in the same directory "
+                      "as this script and start again.")  
+        quit()
+        
+    menu()
