@@ -1,5 +1,5 @@
-# Bootshuze
-OBJ to XML converter for Spiral Knights.
+# Bootshuze-GUI
+OBJ to XML converter for Spiral Knights. [Bootshuze](https://github.com/Puzovoz/Bootshuze) fork adding a graphical user interface.
 Requires [SpiralView](https://github.com/lucas-allegri/spiralview/releases) for further model modification.
 
 ## Features
