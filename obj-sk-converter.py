@@ -98,8 +98,8 @@ def main(file, file_name, window, output_name):
   
 def menu():
       column1 = [
-                  [sg.Text('Welcome to Bootshuze!', size=(20,1), 
-                    justification='c', font=('Helvetica', 16))],
+                  [sg.Text('Welcome to Bootshuze-GUI!', size=(24,1), 
+                    justification='c', font=('Helvetica', 15))],
                   [sg.Text('Select a .obj model to process:')], 
                   [sg.InputText(size=(29,1)), sg.FileBrowse()],
                   [sg.Button('Submit'), 
@@ -149,7 +149,7 @@ def menu():
 if __name__ == '__main__':
       
     if not os.path.isfile('template'):
-        sg.PopupError("Template file is missing, make sure" 
+        sg.PopupError("Template file is missing, make sure " 
                       "it's in the same directory "
                       "as this script and start again.")  
         quit()
