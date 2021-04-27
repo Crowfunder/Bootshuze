@@ -16,9 +16,9 @@ The script will NOT:
   - Create new texture UV mapping. That should be done in any 3D model editor you're using.
   
 ## Getting started
-  1. Download the latest release, and open either the .exe file or the .py file (the latter requires Python 3 installed).
-  1. A console window should appear. When asked, provide the name of the OBJ model inside the script directory.
-  1. The script should create an XML file inside the directory.
+  1. Download the latest release, and open either the .exe file or the .py file (the latter requires Python 3 with PySimpleGUI package installed).
+  1. A simple interface window should appear. Select your OBJ model with "Browse" button.
+  1. Press "Submit" and wait. The script should create an XML file inside the directory.
   1. With [SpiralView](https://github.com/lucas-allegri/spiralview/releases) open Model Viewer, Resource Editor (Ctrl+R), `File → Import from XML...` and point to the new XML you created with the script. That should provide info to the resource editor.
   1. Save the model (Ctrl+A) in any directory and open in the model viewer.
   
