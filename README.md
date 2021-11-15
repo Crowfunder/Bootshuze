@@ -10,6 +10,7 @@ The script will:
   - Convert OBJ file's indices and vertices to XML format Spiral Knights uses.
   - Recognize the primitives mode the input file uses (lines, triangles, quads).
   - Calculate bounds for the model.
+  - Output the model either as Static or Articulated.
  
 The script will NOT:
   - Change any data that can be changed with SpiralSpy after creation (material, texture, etc).
@@ -20,6 +21,7 @@ The script will NOT:
 ## Getting started
   1. Download the latest release, and open either the .exe file or the .py file (the latter requires Python 3 with PySimpleGUI package installed).
   1. A simple interface window should appear. Select your OBJ model with "Browse" button.
+  1. If necessary, select a different output model type. (Default: Articulated)
   1. Press "Submit" and wait. The script should create an XML file inside the directory.
   1. With [SpiralView](https://github.com/lucas-allegri/spiralview/releases) open Model Viewer, Resource Editor (Ctrl+R), `File → Import from XML...` and point to the new XML you created with the script. That should provide info to the resource editor.
   1. Save the model (Ctrl+A) in any directory and open in the model viewer.

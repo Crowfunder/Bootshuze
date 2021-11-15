@@ -1,14 +1,35 @@
 import re
+import gc
 import os.path
-import sys
 import PySimpleGUI as sg
+from os import mkdir as mkdir
+from wget import download as download_file
+
+# Used for downloading missing template files.
+def templates_download():
+
+  dl_urls = [
+    "https://raw.githubusercontent.com/Crowfunder/Bootshuze-GUI/master/templates/template_articulated",
+    "https://raw.githubusercontent.com/Crowfunder/Bootshuze-GUI/master/templates/template_static"
+  ]
+
+  if not os.path.isdir("templates") == True:
+    mkdir("templates")
+  
+  sg.Popup('Downloading template files...', button_type=5, 
+            auto_close=True, no_titlebar=True)
+
+  for url in dl_urls:
+    download_file(url, out = "templates/")
+
 
 # Allows printing directly into window console.
 def console_print(text, window):
-      print(text)
-      window.Refresh()
+  print(text)
+  window.Refresh()
 
-def main(file, file_name, window, output_name):
+
+def main(file, file_name, window, template):
   
   with open(file, 'r') as f:
     args     = dict()
@@ -73,17 +94,19 @@ def main(file, file_name, window, output_name):
     del v, vn, vt
     
   with open(f"{file_name}.xml", 'w+') as o, \
-       open('template', 'r') as i:
-    console_print('Writing output.', window)
+       open(f"templates/{template}", 'r') as i:
+    console_print(f'Writing output with {template}...', window)
     
     args['min_extent'] = str(min_extent)[1:-1]
     del min_extent
     args['max_extent'] = str(max_extent)[1:-1]
     del max_extent
     args['indices']    = str(indices)[1:-1]
+    args['indices_end'] = str(max(indices))
     del indices
     args['vertices']   = ', '.join(vertices)
     del vertices
+    gc.collect()
     
     regex = re.compile(r'(?:{{ )([a-zA-Z_]*)(?: }})')
     for line in i:
@@ -93,65 +116,88 @@ def main(file, file_name, window, output_name):
       
     console_print(f'Finished writing to {o.name}.', window)
     console_print(f'Done!', window)
-    window.FindElement('_done_').Update('Done!')
+    window['_done_'].Update('Done!')
 
   
 def menu():
-      column1 = [
-                  [sg.Text('Welcome to Bootshuze-GUI!', size=(24,1), 
-                    justification='c', font=('Helvetica', 15))],
-                  [sg.Text('Select a .obj model to process:')], 
-                  [sg.InputText(size=(29,1)), sg.FileBrowse()],
-                  [sg.Button('Submit'), 
-                    sg.Text('', text_color='lawn green', key='_done_',
-                            size=(5,1))]
-                ]
-      column2 = [
-                  [sg.Output(size=(36,6), key='_output_')],
-                  [sg.Button('Clear Console')]
-                ]
-      layout = [[sg.Frame(layout = column1, title='')], 
-                [sg.Frame(layout = column2, title='Console')]]
-      window = sg.Window('Bootshuze', layout, 
-                         element_justification='c').Finalize()
+
+  column1 = [
+              [sg.Text('Welcome to Bootshuze-GUI!', size=(24,1), 
+                        justification='c', font=('Helvetica', 15))],
+              [sg.Text('Select a .obj model to process:')], 
+              [sg.InputText(size=(29,1)), 
+                sg.FileBrowse(file_types=(("Wavefront Files", "*.obj"),))],
+              [sg.Radio('Articulated','OUTPUT_TYPE', default=True,
+                        tooltip='Output model as Articulated type',
+                        key='_articulated-mode_'),
+                sg.Radio('Static', 'OUTPUT_TYPE', key='_static-mode_', 
+                        tooltip='Output model as Static type')],
+              [sg.Button('Submit'), 
+                sg.Text('', text_color='lawn green', key='_done_',
+                        size=(5,1))]
+            ]
+
+  column2 = [
+              [sg.Output(size=(36,6), key='_output_')],
+              [sg.Button('Clear Console')]
+            ]
+
+  layout = [[sg.Frame(layout = column1, title='')], 
+            [sg.Frame(layout = column2, title='Console')]]
+
+  window = sg.Window('Bootshuze-GUI', layout, 
+                      element_justification='c').Finalize()
       
-      while True:
-        try:
+
+  while True:
+    try:
           
-            event, values = window.Read()
-            if event is None:
-              break
-            
-            elif event == 'Submit':
-              file = values[0]
-              window.FindElement('_done_').Update('')
-              console_print(fr'''Processing "{file}"...''', window)
+      event, values = window.Read()
+      if event is None:
+        break
+
+      elif event == 'Submit':
+        file = values[0]
+        window['_done_'].Update('')
               
-              file_name = os.path.basename(file).replace('.obj', '')
-              if os.path.isfile(f'{file_name}.xml'):
-                output_name = console_print(f'File {file_name}.xml '
-                                             'already exists! Halting!', window)
-              else:
-                output_name = None
-                main(file, file_name, window, output_name)
-                
-              console_print('---------------------------------'
-                            '------------------------------', window)
-              
-            elif event == 'Clear Console':
-              window.FindElement('_output_').Update('')
-              
-        except Exception as e:
-          print(e)
+        if window['_articulated-mode_'].Get() == True:
+          template = "template_articulated"
+        elif window['_static-mode_'].Get() == True:
+          template = "template_static"
+
+        file_name = os.path.basename(file).replace('.obj', '')
+        if os.path.isfile(f'{file_name}.xml'):
+          console_print(f'File {file_name}.xml '
+                         'already exists! Halting!', window)
+
+        else:
+          if file != '':
+            console_print(fr'''Processing "{file}"...''', window)
+            main(file, file_name, window, template)
+          else:
+            raise Exception('Please select a file!')
           console_print('---------------------------------'
                         '------------------------------', window)
-  
+
+      elif event == 'Clear Console':
+              window['_output_'].Update('')
+              
+    except Exception as e:
+      console_print(e, window)
+      console_print('---------------------------------'
+                    '------------------------------', window)
+
+
 if __name__ == '__main__':
-      
-    if not os.path.isfile('template'):
-        sg.PopupError("Template file is missing, make sure " 
-                      "it's in the same directory "
+
+  if not os.path.isfile('templates/template_articulated'):
+    if not os.path.isfile('templates/template_static'):
+      try:
+        templates_download()
+      except:
+        sg.PopupError("Template files are missing, make " 
+                      "sure they are in the same directory "
                       "as this script and start again.")  
         quit()
-        
-    menu()
+
+  menu()
