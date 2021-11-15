@@ -19,7 +19,7 @@ The script will NOT:
   - Create new texture UV mapping. That should be done in any 3D model editor you're using.
   
 ## Getting started
-  1. Download the latest release, and open either the .exe file or the .py file (the latter requires Python 3 with PySimpleGUI package installed).
+  1. Download the latest release, and open either the .exe file or the .py file (the latter requires Python 3 with PySimpleGUI and wget packages installed).
   1. A simple interface window should appear. Select your OBJ model with "Browse" button.
   1. If necessary, select a different output model type. (Default: Articulated)
   1. Press "Submit" and wait. The script should create an XML file inside the directory.
