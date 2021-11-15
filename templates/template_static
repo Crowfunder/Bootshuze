@@ -43,8 +43,8 @@
     <source>model.mxml</source>
     <meshes>
       <bounds>
-        <minExtent>-0.378031, -0.348822, 0.635705</minExtent>
-        <maxExtent>0.243345, 0.199378, 1.530149</maxExtent>
+        <minExtent>{{ min_extent }}</minExtent>
+        <maxExtent>{{ max_extent }}</maxExtent>
       </bounds>
       <visible>
         <entry>
