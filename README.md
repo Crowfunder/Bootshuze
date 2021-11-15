@@ -2,7 +2,7 @@
 OBJ to XML converter for Spiral Knights. [Bootshuze](https://github.com/Puzovoz/Bootshuze) fork adding a graphical user interface.
 Requires [SpiralView](https://github.com/lucas-allegri/spiralview/releases) for further model modification.
 
-<img src="https://cdn.discordapp.com/attachments/594154423744200714/836598434180890624/unknown.png">
+<img src="https://media.discordapp.net/attachments/594154423744200714/909815372201472090/unknown.png">
 
 ## Features
 
