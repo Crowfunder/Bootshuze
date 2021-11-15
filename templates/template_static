@@ -77,7 +77,7 @@
                 <offset>20</offset>
                 <floatArray ref="1"/>
               </vertexArray>
-              <end>23</end>
+              <end>{{ indices_end }}</end>
             <indices>{{ indices }}</indices>
 		  </geometry>
         </entry>
