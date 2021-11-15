@@ -145,7 +145,7 @@ def menu():
   layout = [[sg.Frame(layout = column1, title='')], 
             [sg.Frame(layout = column2, title='Console')]]
 
-  window = sg.Window('Bootshuze-GUI', layout, 
+  window = sg.Window('Bootshuze-GUI v1.1.0', layout, 
                       element_justification='c').Finalize()
       
 
